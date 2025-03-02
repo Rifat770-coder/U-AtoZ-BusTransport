@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Bus Transport</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.5;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            max-width: 100%;
+            min-height: 100vh;
+        }
+        
+        /* Header styles */
+        .header {
+            background-color: #2563eb;
+            color: white;
+            padding: 1rem;
+        }
+        
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        
+        .header p {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+        
+        /* Search bar styles */
+        .search-container {
+            padding: 1rem;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-wrapper {
+            position: relative;
+        }
+        
+        .search-wrapper input {
+            width: 100%;
+            padding: 0.5rem 0.5rem 0.5rem 2.5rem;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .search-wrapper input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+        
+        /* Tab styles */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+            background-color: white;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 0.75rem 0;
+            border: none;
+            background: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #6b7280;
+            cursor: pointer;
+        }
+        
+        .tab-button.active {
+            color: #2563eb;
+            border-bottom: 2px solid #2563eb;
+        }
+        
+        /* Content area */
+        .content {
+            flex: 1;
+            overflow: auto;
+            padding: 1rem;
+        }
+        
+        /* Routes styles */
+        .route-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .route-card.selected {
+            box-shadow: 0 0 0 2px #2563eb;
+        }
+        
+        .route-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .route-name {
+            font-weight: 500;
+        }
+        
+        .route-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-on-time {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-delayed {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .route-schedule {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .route-details {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+            display: none;
+        }
+        
+        .route-details.visible {
+            display: block;
+        }
+        
+        .stops-title {
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stop-item {
+            display: flex;
+            margin-bottom: 0.75rem;
+        }
+        
+        .stop-marker {
+            margin-right: 0.75rem;
+            position: relative;
+        }
+        
+        .stop-circle {
+            height: 1rem;
+            width: 1rem;
+            border-radius: 50%;
+            margin-top: 0.25rem;
+        }
+        
+        .stop-terminal {
+            background-color: #2563eb;
+        }
+        
+        .stop-middle {
+            background-color: white;
+            border: 2px solid #2563eb;
+        }
+        
+        .stop-line {
+            position: absolute;
+            width: 0.125rem;
+            height: 1.5rem;
+            background-color: #93c5fd;
+            left: 0.4375rem;
+            top: 1.25rem;
+        }
+        
+        .stop-info {
+            flex: 1;
+        }
+        
+        .stop-name {
+            font-weight: 500;
+        }
+        
+        .stop-time {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        
+        /* Real-time tracking styles */
+        .realtime-container {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .realtime-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .realtime-title {
+            font-weight: 500;
+        }
+        
+        .last-updated {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .active-count {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+        
+        .map-placeholder {
+            background-color: #f3f4f6;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+        
+        .map-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .map-subtitle {
+            font-size: 0.75rem;
+        }
+        
+        .bus-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .bus-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            background-color: #f9fafb;
+            border-radius: 0.5rem;
+        }
+        
+        .bus-icon {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+            padding: 0.5rem;
+            border-radius: 50%;
+            margin-right: 0.75rem;
+        }
+        
+        .bus-info {
+            flex: 1;
+        }
+        
+        .bus-header {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .bus-id {
+            font-weight: 500;
+        }
+        
+        .capacity-tag {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+        
+        .capacity-high {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        
+        .capacity-medium {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .capacity-low {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .bus-route {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .bus-next-stop {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        
+        /* Notifications styles */
+        .notifications-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .notifications-title {
+            font-weight: 500;
+        }
+        
+        .mark-read-btn {
+            font-size: 0.875rem;
+            color: #2563eb;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .notification-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .notification-content {
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .notification-icon {
+            padding: 0.5rem;
+            border-radius: 50%;
+            margin-right: 0.75rem;
+        }
+        
+        .icon-alert {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .icon-info {
+            background-color: #dbeafe;
+            color: #2563eb;
+        }
+        
+        .icon-schedule {
+            background-color: #f3e8ff;
+            color: #7e22ce;
+        }
+        
+        .notification-details {
+            flex: 1;
+        }
+        
+        .notification-route-time {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .notification-route {
+            font-weight: 500;
+        }
+        
+        .notification-time {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        
+        .notification-message {
+            font-size: 0.875rem;
+            color: #4b5563;
+            margin-top: 0.25rem;
+        }
+        
+        .view-all-btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 0;
+            text-align: center;
+            font-size: 0.875rem;
+            color: #2563eb;
+            background: none;
+            border: 1px solid #bfdbfe;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+        
+        /* Bottom action bar */
+        .action-bar {
+            background-color: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 1rem;
+        }
+        
+        .notification-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0.75rem 0;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .btn-icon {
+            margin-right: 0.5rem;
+        }
+        
+        /* Empty state */
+        .empty-results {
+            text-align: center;
+            padding: 2rem 0;
+            color: #6b7280;
+        }
+        
+        /* Utility */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>University Bus Transport</h1>
+            <p>Plan your campus commute efficiently</p>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="search-container">
+            <div class="search-wrapper">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Search routes or stops...">
+            </div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" data-tab="routes">Routes & Schedules</button>
+            <button class="tab-button" data-tab="realtime">Real-time Tracking</button>
+            <button class="tab-button" data-tab="notifications">Notifications</button>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="content">
+            <!-- Routes Tab -->
+            <div class="tab-content" id="routesTab">
+                <div id="routesList"></div>
+                <div id="emptyResults" class="empty-results hidden">
+                    No routes found matching "<span id="searchTerm"></span>"
+                </div>
+            </div>
+            
+            <!-- Real-time Tab -->
+            <div class="tab-content hidden" id="realtimeTab">
+                <div class="realtime-container">
+                    <div class="realtime-header">
+                        <h3 class="realtime-title">Active Buses</h3>
+                        <span class="last-updated">Last updated: Just now</span>
+                    </div>
+                    <p class="active-count" id="activeBusCount"></p>
+                    
+                    <div class="map-placeholder">
+                        <div class="map-title">Interactive Map Coming Soon</div>
+                        <div class="map-subtitle">Bus locations will be displayed here</div>
+                    </div>
+                    
+                    <div class="bus-list" id="busList"></div>
+                </div>
+            </div>
+            
+            <!-- Notifications Tab -->
+            <div class="tab-content hidden" id="notificationsTab">
+                <div class="notifications-header">
+                    <h3 class="notifications-title">Recent Notifications</h3>
+                    <button class="mark-read-btn">Mark all as read</button>
+                </div>
+                
+                <div id="notificationsList"></div>
+                
+                <button class="view-all-btn">View All Notifications</button>
+            </div>
+        </div>
+        
+        <!-- Fixed Bottom Action Bar -->
+        <div class="action-bar">
+            <button class="notification-btn">
+                <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Set Up Route Notifications
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const busRoutes = [
+            { id: 1, name: 'Campus Loop', stops: ['Main Gate', 'Student Center', 'Engineering Building', 'Library', 'Dormitories', 'Main Gate'], frequency: '15 min', firstBus: '6:30 AM', lastBus: '11:00 PM', status: 'On time' },
+            { id: 2, name: 'Downtown Express', stops: ['Main Gate', 'Downtown Plaza', 'City Library', 'Shopping Mall', 'Main Gate'], frequency: '30 min', firstBus: '7:00 AM', lastBus: '10:00 PM', status: 'Delayed (10 min)' },
+            { id: 3, name: 'Research Park Shuttle', stops: ['Engineering Building', 'Research Park', 'Innovation Center', 'Engineering Building'], frequency: '45 min', firstBus: '8:00 AM', lastBus: '6:00 PM', status: 'On time' }
+        ];
+        
+        const activeBuses = [
+            { id: 101, route: 'Campus Loop', location: 'Near Library', nextStop: 'Dormitories', eta: '2 min', capacity: 'Medium' },
+            { id: 102, route: 'Downtown Express', location: 'Downtown Plaza', nextStop: 'City Library', eta: '5 min', capacity: 'High' },
+            { id: 103, route: 'Campus Loop', location: 'Engineering Building', nextStop: 'Library', eta: '3 min', capacity: 'Low' },
+            { id: 104, route: 'Research Park Shuttle', location: 'Research Park', nextStop: 'Innovation Center', eta: '7 min', capacity: 'Low' }
+        ];
+        
+        const notifications = [
+            { id: 1, type: 'alert', route: 'Downtown Express', message: 'Bus #102 is running 10 minutes behind schedule due to traffic', time: '10:15 AM' },
+            { id: 2, type: 'info', route: 'All Routes', message: 'Weekend schedule in effect starting Friday', time: '9:30 AM' },
+            { id: 3, type: 'schedule', route: 'Research Park Shuttle', message: 'Additional buses added between 4-6 PM today', time: 'Yesterday' }
+        ];
+        
+        // Variables
+        let selectedRouteId = null;
+        let searchQuery = '';
+        
+        // Elements
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const searchInput = document.getElementById('searchInput');
+        const routesList = document.getElementById('routesList');
+        const emptyResults = document.getElementById('emptyResults');
+        const searchTerm = document.getElementById('searchTerm');
+        const activeBusCount = document.getElementById('activeBusCount');
+        const busList = document.getElementById('busList');
+        const notificationsList = document.getElementById('notificationsList');
+        
+        // Initialize
+        function init() {
+            // Set up event listeners
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => switchTab(button.dataset.tab));
+            });
+            
+            searchInput.addEventListener('input', handleSearch);
+            
+            // Render initial data
+            renderRoutes();
+            renderBuses();
+            renderNotifications();
+            
+            // Update active bus count
+            activeBusCount.textContent = `Currently ${activeBuses.length} buses in operation`;
+        }
+        
+        // Switch tabs
+        function switchTab(tabId) {
+            tabButtons.forEach(button => {
+                button.classList.toggle('active', button.dataset.tab === tabId);
+            });
+            
+            tabContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            document.getElementById(`${tabId}Tab`).classList.remove('hidden');
+        }
+        
+        // Handle search
+        function handleSearch() {
+            searchQuery = searchInput.value.toLowerCase();
+            renderRoutes();
+        }
+        
+        // Render routes list
+        function renderRoutes() {
+            const filteredRoutes = busRoutes.filter(route => 
+                route.name.toLowerCase().includes(searchQuery) || 
+                route.stops.some(stop => stop.toLowerCase().includes(searchQuery))
+            );
+            
+            if (filteredRoutes.length === 0) {
+                routesList.innerHTML = '';
+                emptyResults.classList.remove('hidden');
+                searchTerm.textContent = searchQuery;
+            } else {
+                emptyResults.classList.add('hidden');
+                
+                routesList.innerHTML = filteredRoutes.map(route => `
+                    <div class="route-card ${selectedRouteId === route.id ? 'selected' : ''}" data-id="${route.id}">
+                        <div class="route-header">
+                            <h3 class="route-name">${route.name}</h3>
+                            <span class="route-status ${route.status.includes('Delayed') ? 'status-delayed' : 'status-on-time'}">
+                                ${route.status}
+                            </span>
+                        </div>
+                        
+                        <div class="route-schedule">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 4px">
+                                <path d="M12 8V12L15 15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Every ${route.frequency} • First: ${route.firstBus} • Last: ${route.lastBus}</span>
+                        </div>
+                        
+                        <div class="route-details ${selectedRouteId === route.id ? 'visible' : ''}">
+                            <h4 class="stops-title">Stops:</h4>
+                            <div class="stops-list">
+                                ${route.stops.map((stop, index) => `
+                                    <div class="stop-item">
+                                        <div class="stop-marker">
+                                            <div class="stop-circle ${index === 0 || index === route.stops.length - 1 ? 'stop-terminal' : 'stop-middle'}"></div>
+                                            ${index < route.stops.length - 1 ? '<div class="stop-line"></div>' : ''}
+                                        </div>
+                                        <div class="stop-info">
+                                            <div class="stop-name">${stop}</div>
+                                            ${index < route.stops.length - 1 ? `<div class="stop-time">~${index * 5 + 5} min to next stop</div>` : ''}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Add click listeners to route cards
+                document.querySelectorAll('.route-card').forEach(card => {
+                    card.addEventListener('click', () => toggleRouteDetails(parseInt(card.dataset.id)));
+                });
+            }
+        }
+        
+        // Toggle route details
+        function toggleRouteDetails(routeId) {
+            selectedRouteId = selectedRouteId === routeId ? null : routeId;
+            renderRoutes();
+        }
+        
+        // Render buses list
+        function renderBuses() {
+            busList.innerHTML = activeBuses.map(bus => `
+                <div class="bus-item">
+                    <div class="bus-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 11L10 5L13 8L21 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3 22L10 16L13 19L21 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="bus-info">
+                        <div class="bus-header">
+                            <span class="bus-id">Bus #${bus.id}</span>
+                            <span class="capacity-tag capacity-${bus.capacity.toLowerCase()}">
+                                ${bus.capacity} Capacity
+                            </span>
+                        </div>
+                        <div class="bus-route">${bus.route} • ${bus.location}</div>
+                        <div class="bus-next-stop">Next stop: ${bus.nextStop} (ETA: ${bus.eta})</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Render notifications list
+        function renderNotifications() {
+            notificationsList.innerHTML = notifications.map(notification => `
+                <div class="notification-card">
+                    <div class="notification-content">
+                        <div class="notification-icon icon-${notification.type}">
+                            ${getNotificationIcon(notification.type)}
+                        </div>
+                        <div class="notification-details">
+                            <div class="notification-route-time">
+                                <span class="notification-route">${notification.route}</span>
+                                <span class="notification-time">${notification.time}</span>
+                            </div>
+                            <p class="notification-message">${notification.message}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Get notification icon based on type
+        function getNotificationIcon(type) {
+            switch (type) {
+                case 'alert':
+                    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10.29 3.86L1.82 18C1.64537 18.3024 1.55296 18.6453 1.55199 18.9945C1.55101 19.3437 1.6415 19.6871 1.81442 19.9905C1.98734 20.2939 2.23675 20.5467 2.53773 20.7238C2.83871 20.9009 3.18063 20.9962 3.53 21H20.47C20.8194 20.9962 21.1613 20.9009 21.4623 20.7238C21.7633 20.5467 22.0127 20.2939 22.1856 19.9905C22.3585 19.6871 22.449 19.3437 22.448 18.9945C22.447 18.6453 22.3546 18.3024 22.18 18L13.71 3.86C13.5317 3.56611 13.2807 3.32312 12.9812 3.15448C12.6817 2.98585 12.3437 2.89725 12 2.89725C11.6563 2.89725 11.3183 2.98585 11.0188 3.15448C10.7193 3.32312 10.4683 3.56611 10.29 3.86Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 9V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 17H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>`;
+                case 'info':
+                    return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>`;
+                case 'schedule':
+                    return `<svg width="20" height="20" viewBox="0 0 24 24" fill
+                                            <path d="M12 8V12L15 15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>`;
+            }
+        }
+        
+        // Start the app
+        init();
+    </script>
+</body>
+</html>
